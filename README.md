@@ -143,3 +143,15 @@ By combining blockchain technology, strong authentication mechanisms, optimal ke
 techniques, the system enhances evidence security, prevents tampering, and improves the reliability of digital forensic investigations.
 
 ---
+# 🔗 👨‍💻 Author
+
+**K. Gagana**  
+Cybersecurity Graduate | SOC Analyst Aspirant | Cybersecurity Analyst | Network Engineer
+
+🔗 **GitHub:**  
+https://github.com/Kurubagagana
+
+🔗 **LinkedIn:**  
+https://www.linkedin.com/in/gaganakuruba
+
+---
