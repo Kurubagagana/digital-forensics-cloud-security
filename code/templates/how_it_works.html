@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+{% block title %}How It Works · FORENSIQ{% endblock %}
+{% block content %}
+<style>
+.hiw{max-width:1100px;margin:0 auto;padding:5rem 2rem;}
+
+.hiw-hero{text-align:center;max-width:680px;margin:0 auto 6rem;padding-top:1rem;}
+.hiw-hero h1{font-size:3rem;font-weight:800;letter-spacing:-2px;line-height:1.05;margin-bottom:1.2rem;}
+.hiw-hero h1 em{font-style:normal;background:linear-gradient(135deg,var(--teal),#00ccff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hiw-hero p{color:var(--muted);font-size:1rem;line-height:1.75;}
+
+/* ARCH DIAGRAM */
+.arch-section{margin-bottom:6rem;}
+.arch-diagram{display:flex;align-items:center;justify-content:center;gap:6px;overflow-x:auto;padding:3rem 2rem;background:var(--glass);backdrop-filter:var(--blur);border:1px solid var(--rim);border-radius:20px;flex-wrap:nowrap;min-width:600px;}
+.arch-node{display:flex;flex-direction:column;align-items:center;gap:8px;min-width:100px;text-align:center;}
+.an-box{width:72px;height:72px;border-radius:16px;border:1px solid var(--rim);background:rgba(0,255,180,0.04);display:flex;align-items:center;justify-content:center;font-size:1.6rem;transition:all .25s;}
+.an-box:hover{border-color:rgba(0,255,180,0.4);box-shadow:var(--glow-t);}
+.an-box.amber:hover{border-color:rgba(255,170,40,0.4);box-shadow:var(--glow-a);}
+.an-label{font-size:0.65rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2);}
+.an-sub{font-size:0.6rem;color:var(--teal);font-family:var(--mono);}
+.arch-arr{color:rgba(200,240,255,0.15);font-size:1.2rem;flex-shrink:0;}
+
+/* COMPONENTS */
+.components{margin-bottom:6rem;}
+.comp-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;}
+@media(max-width:680px){.comp-grid{grid-template-columns:1fr;}}
+
+.comp-card{border-radius:20px;border:1px solid var(--rim);overflow:hidden;background:var(--glass);backdrop-filter:var(--blur);}
+.comp-head{padding:20px 24px;border-bottom:1px solid var(--rim);display:flex;align-items:center;gap:14px;}
+.comp-ico{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0;}
+.ci-t{background:rgba(0,255,180,0.08);border:1px solid rgba(0,255,180,0.15);}
+.ci-a{background:rgba(255,170,40,0.08);border:1px solid rgba(255,170,40,0.15);}
+.ci-v{background:rgba(176,111,255,0.08);border:1px solid rgba(176,111,255,0.15);}
+.ci-b{background:rgba(0,200,255,0.08);border:1px solid rgba(0,200,255,0.15);}
+.comp-head h3{font-size:0.9rem;font-weight:700;letter-spacing:.2px;margin-bottom:2px;}
+.comp-head p{font-size:0.72rem;color:var(--muted2);}
+.comp-body{padding:20px 24px;}
+.comp-body ul{list-style:none;display:flex;flex-direction:column;gap:9px;}
+.comp-body li{font-size:0.86rem;color:var(--muted);line-height:1.55;display:flex;gap:10px;align-items:flex-start;}
+.comp-body li::before{content:'▸';color:var(--teal);flex-shrink:0;font-size:0.75rem;margin-top:2px;}
+
+/* TIMELINE */
+.timeline-section{margin-bottom:6rem;}
+.tl{display:flex;flex-direction:column;gap:0;}
+.tl-item{display:flex;gap:24px;position:relative;}
+.tl-item:not(:last-child)::after{content:'';position:absolute;left:20px;top:44px;bottom:0;width:2px;background:linear-gradient(to bottom,var(--rim),transparent);}
+.tl-dot{width:42px;height:42px;border-radius:50%;flex-shrink:0;z-index:1;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:0.72rem;font-weight:500;border:1px solid;transition:all .25s;}
+.tl-dot.t{background:rgba(0,255,180,0.08);border-color:rgba(0,255,180,0.25);color:var(--teal);}
+.tl-dot.a{background:rgba(255,170,40,0.08);border-color:rgba(255,170,40,0.25);color:var(--amber);}
+.tl-dot.v{background:rgba(176,111,255,0.08);border-color:rgba(176,111,255,0.25);color:var(--violet);}
+.tl-content{flex:1;padding-bottom:32px;}
+.tl-content h4{font-size:1rem;font-weight:700;margin-bottom:6px;}
+.tl-content p{font-size:0.88rem;color:var(--muted);line-height:1.65;}
+.tl-code{display:inline-block;margin-top:9px;background:rgba(0,255,180,0.05);border:1px solid rgba(0,255,180,0.1);font-family:var(--mono);font-size:0.72rem;color:var(--teal);padding:4px 12px;border-radius:8px;}
+
+/* EEO */
+.eeo-section{margin-bottom:6rem;}
+.eeo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+@media(max-width:680px){.eeo-grid{grid-template-columns:1fr;}}
+.eeo-step{padding:22px;border-radius:16px;border:1px solid var(--rim);background:var(--glass);backdrop-filter:var(--blur);text-align:center;}
+.eeo-n{font-family:var(--mono);font-size:3.5rem;font-weight:300;line-height:1;color:rgba(0,255,180,0.08);margin-bottom:10px;}
+.eeo-step h4{font-size:0.85rem;font-weight:700;margin-bottom:7px;}
+.eeo-step p{font-size:0.8rem;color:var(--muted);line-height:1.6;}
+
+/* COMPARISON */
+.compare-section{margin-bottom:4rem;}
+.compare-table{width:100%;border-collapse:collapse;border-radius:16px;overflow:hidden;border:1px solid var(--rim);}
+.compare-table thead tr{background:rgba(0,255,180,0.04);}
+.compare-table th{padding:14px 20px;font-size:0.66rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted2);border-bottom:1px solid var(--rim);}
+.compare-table td{padding:14px 20px;font-size:0.84rem;border-bottom:1px solid rgba(0,255,180,0.04);}
+.compare-table tr:last-child td{border-bottom:none;}
+.compare-table tr:hover td{background:rgba(0,255,180,0.015);}
+td.feature{color:var(--ice);font-family:var(--font);font-size:0.87rem;font-weight:600;}
+</style>
+
+<div class="hiw">
+  <div class="hiw-hero">
+    <div class="eyebrow" style="justify-content:center">Architecture Deep Dive</div>
+    <h1>How <em>FORENSIQ</em><br>actually works</h1>
+    <p>A technical walkthrough of the DFA-AOKGE architecture — from evidence ingestion to immutable blockchain storage.</p>
+  </div>
+
+  <!-- ARCH DIAGRAM -->
+  <div class="arch-section">
+    <div class="eyebrow">System Architecture</div>
+    <div style="overflow-x:auto">
+    <div class="arch-diagram">
+      {% for n in [('👤','User','Investigator'),('🌐','IaaS','Cloud Platform'),('✅','SBVM','Auth Layer'),('🧬','EEO','Key Engine'),('🔐','MHE','Encryption'),('⛏','PoW','Block Miner'),('⛓','BC','Ledger'),('☁️','Store','Encrypted')] %}
+      <div class="arch-node">
+        <div class="an-box">{{ n[0] }}</div>
+        <div class="an-label">{{ n[1] }}</div>
+        <div class="an-sub">{{ n[2] }}</div>
+      </div>
+      {% if not loop.last %}<div class="arch-arr">→</div>{% endif %}
+      {% endfor %}
+    </div>
+    </div>
+  </div>
+
+  <!-- COMPONENTS -->
+  <div class="components">
+    <div class="eyebrow">Core Components</div>
+    <div class="comp-grid">
+      <div class="comp-card">
+        <div class="comp-head"><div class="comp-ico ci-t">⛓</div><div><h3>Blockchain Distributed Design</h3><p>BC-based peer distribution</p></div></div>
+        <div class="comp-body"><ul>
+          <li>Distributes evidence across multiple peer nodes using consensus protocol</li>
+          <li>Each block cryptographically chains to its predecessor via prev_hash</li>
+          <li>Proof-of-work mining ensures block validity before commitment</li>
+          <li>Transparent audit trail eliminates single points of failure</li>
+          <li>Smart contract logic automates chain-of-custody verification</li>
+        </ul></div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-head"><div class="comp-ico ci-a">🧬</div><div><h3>EEO Key Generation</h3><p>Enhanced Equilibrium Optimizer</p></div></div>
+        <div class="comp-body"><ul>
+          <li>Swarm intelligence algorithm modeled on thermodynamic equilibrium</li>
+          <li>Population of N=10 candidate keys evaluated for cryptographic fitness</li>
+          <li>Iterative convergence maximizes Shannon entropy of the output key</li>
+          <li>Each evidence file receives a unique, never-reused secret key</li>
+          <li>Resistant to brute-force attacks via key space maximization</li>
+        </ul></div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-head"><div class="comp-ico ci-v">🔐</div><div><h3>Multi-Key Homomorphic Encryption</h3><p>Compute on ciphertext</p></div></div>
+        <div class="comp-body"><ul>
+          <li>Allows integrity verification without ever decrypting evidence</li>
+          <li>Multiple authorized key holders required for threshold decryption</li>
+          <li>Evidence privacy protected even from cloud infrastructure operator</li>
+          <li>Ciphertext hash stored on-chain; plaintext discarded post-encryption</li>
+          <li>Supports role-based partial key distribution</li>
+        </ul></div>
+      </div>
+      <div class="comp-card">
+        <div class="comp-head"><div class="comp-ico ci-b">✅</div><div><h3>SBVM Authentication</h3><p>Secure Block Verification Mechanism</p></div></div>
+        <div class="comp-body"><ul>
+          <li>Multi-factor identity verification before any evidence access is granted</li>
+          <li>Role-based access control: Admin vs Investigator privilege tiers</li>
+          <li>Session token binding prevents replay and hijack attacks</li>
+          <li>All access events logged with timestamp, IP, and action type</li>
+          <li>Automatic detection of unauthorized modification attempts</li>
+        </ul></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIMELINE -->
+  <div class="timeline-section">
+    <div class="eyebrow">Evidence Processing Timeline</div>
+    <div class="tl">
+      {% for t in [
+        ('01','t','Evidence Ingestion','Raw forensic data arrives at the IaaS cloud platform. The system records submission timestamp, source IP address, and the investigator\'s verified identity via SBVM.','INPUT → IaaS(timestamp, identity, raw_data)'),
+        ('02','t','SHA-256 Integrity Hash','An SHA-256 hash is immediately computed on the plaintext data. This immutable fingerprint becomes the ground-truth reference for all future integrity checks.','origin_hash = sha256(raw_data)'),
+        ('03','a','EEO Key Optimization','The Enhanced Equilibrium Optimizer initializes 10 candidate keys. Fitness scoring drives convergence toward the highest-entropy output, seeded with the origin hash to prevent key reuse.','key = EEO(population=10, seed=origin_hash)'),
+        ('04','a','MHE Encryption','The optimized key drives multi-key homomorphic encryption of the evidence. The ciphertext and its hash are stored; the plaintext is permanently discarded from memory.','ciphertext = MHE_encrypt(data, key)'),
+        ('05','v','SBVM Block Verification','The Secure Block Verification Mechanism constructs the new block, timestamps it, and runs proof-of-work mining until a valid block hash (starting with "00") is found.','block_hash, nonce = mine(prev_hash + enc_hash)'),
+        ('06','t','Blockchain Commit','The verified block is appended to the distributed blockchain ledger. Block ID, hash, nonce, and evidence reference are permanently recorded. Evidence status is marked verified.','blockchain.append(Block(hash, prev, evidence_id))'),
+      ] %}
+      <div class="tl-item">
+        <div class="tl-dot {{ t[1] }}">{{ t[0] }}</div>
+        <div class="tl-content">
+          <h4>{{ t[2] }}</h4>
+          <p>{{ t[3] }}</p>
+          <span class="tl-code">{{ t[4] }}</span>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- EEO -->
+  <div class="eeo-section">
+    <div class="eyebrow">EEO Algorithm</div>
+    <div class="eeo-grid">
+      {% for s in [
+        ('01','Initialize','Generate N=10 random candidate keys using CSPRNG seeded from origin hash'),
+        ('02','Evaluate','Score each candidate by entropy, character distribution, and predictability metrics'),
+        ('03','Equilibrium Pool','Top candidates form pool; particles update position toward equilibrium solutions'),
+        ('04','Concentration Update','Keys refined via exponential decay: C = Ceq + (C₀−Ceq)×e^(−λt)'),
+        ('05','Convergence','Iterate until fitness plateau or max iterations reached — typically under 50 cycles'),
+        ('06','Final Key','Winner hashed with SHA-256 + origin seed → 32-byte non-reusable secret key'),
+      ] %}
+      <div class="eeo-step">
+        <div class="eeo-n">{{ s[0] }}</div>
+        <h4>{{ s[1] }}</h4>
+        <p>{{ s[2] }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- COMPARISON -->
+  <div class="compare-section">
+    <div class="eyebrow">Security Comparison</div>
+    <table class="compare-table">
+      <thead><tr><th>Feature</th><th>Traditional Systems</th><th>DFA-AOKGE (FORENSIQ)</th></tr></thead>
+      <tbody>
+        {% for r in [
+          ('Evidence Storage','Centralized file server','Blockchain-distributed (BC)'),
+          ('Authentication','Username / Password only','SBVM multi-layer verification'),
+          ('Encryption Key Generation','Static or manual keys','EEO optimizer — per-file unique'),
+          ('Encryption Method','AES / RSA single-key','Multi-key homomorphic (MHE)'),
+          ('Tamper Detection','None or manual audit','Cryptographic hash + PoW mining'),
+          ('Chain of Custody','Paper-based / ad-hoc','Immutable on-chain audit log'),
+          ('Court Admissibility','Questionable integrity','Hash + blockchain cryptographic proof'),
+        ] %}
+        <tr>
+          <td class="feature">{{ r[0] }}</td>
+          <td><span class="bd bd-d">{{ r[1] }}</span></td>
+          <td><span class="bd bd-t">{{ r[2] }}</span></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <div style="text-align:center;padding:2rem 0">
+    <a href="{{ url_for('register') }}" class="btn btn-t">Start Using FORENSIQ →</a>
+  </div>
+</div>
+{% endblock %}

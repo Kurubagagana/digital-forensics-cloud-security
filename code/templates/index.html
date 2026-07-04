@@ -1,0 +1,183 @@
+{% extends 'base.html' %}
+{% block title %}FORENSIQ — Blockchain Evidence Vault{% endblock %}
+{% block content %}
+<style>
+/* HERO */
+.hero{min-height:calc(100vh - 66px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:5rem 2rem;position:relative;overflow:hidden;}
+
+.hero-pre{display:inline-flex;align-items:center;gap:10px;padding:8px 20px;border-radius:100px;border:1px solid var(--rim);background:rgba(0,255,180,0.05);font-size:0.72rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--teal);margin-bottom:2.5rem;animation:fadeup .7s ease both;}
+.hero-pre span{width:6px;height:6px;border-radius:50%;background:var(--teal);box-shadow:0 0 8px var(--teal);animation:gp 1.8s infinite;}
+@keyframes gp{0%,100%{box-shadow:0 0 8px var(--teal)}50%{box-shadow:0 0 18px var(--teal),0 0 36px rgba(0,255,180,.4)}}
+
+.hero h1{font-size:clamp(2.8rem,7vw,5.5rem);font-weight:800;line-height:1.05;letter-spacing:-2px;margin-bottom:1.8rem;animation:fadeup .7s .1s ease both;}
+.hero h1 .hl-t{background:linear-gradient(135deg,var(--teal),#00ccff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero h1 .hl-a{background:linear-gradient(135deg,var(--amber),#ff6b35);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+
+.hero p{max-width:580px;font-size:1.1rem;color:var(--muted);line-height:1.75;margin-bottom:3rem;animation:fadeup .7s .2s ease both;font-weight:400;}
+
+.hero-cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;animation:fadeup .7s .3s ease both;margin-bottom:4rem;}
+
+@keyframes fadeup{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:translateY(0)}}
+
+/* STATS ROW IN HERO */
+.hero-stats{display:flex;gap:32px;justify-content:center;flex-wrap:wrap;animation:fadeup .7s .45s ease both;}
+.hstat{text-align:center;}
+.hstat-n{font-size:2.2rem;font-weight:800;letter-spacing:-1px;}
+.hstat-n.t{background:linear-gradient(135deg,var(--teal),#00ccff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hstat-n.a{background:linear-gradient(135deg,var(--amber),#ff6b35);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hstat-n.v{background:linear-gradient(135deg,var(--violet),#e040fb);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hstat-l{font-size:0.7rem;color:var(--muted2);font-weight:600;letter-spacing:1.5px;text-transform:uppercase;margin-top:3px;}
+.hstat-sep{width:1px;background:var(--rim);align-self:stretch;}
+
+/* MARQUEE */
+.marquee-wrap{border-top:1px solid var(--rim);border-bottom:1px solid var(--rim);background:rgba(0,255,180,0.02);overflow:hidden;padding:14px 0;}
+.marquee-inner{display:flex;gap:48px;white-space:nowrap;animation:scroll 25s linear infinite;}
+.marquee-item{font-size:0.72rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--muted2);display:flex;align-items:center;gap:14px;}
+.marquee-item::before{content:'◆';color:var(--teal);font-size:0.5rem;}
+@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+
+/* FEATURES */
+.features{max-width:1200px;margin:0 auto;padding:6rem 2rem;}
+.feat-header{max-width:560px;margin:0 auto 4rem;text-align:center;}
+.feat-header h2{font-size:2.2rem;font-weight:800;letter-spacing:-1px;line-height:1.15;margin-bottom:1rem;}
+.feat-header p{color:var(--muted);line-height:1.7;}
+
+.feat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;}
+@media(max-width:700px){.feat-grid{grid-template-columns:1fr;}}
+
+.feat-card{padding:32px;border-radius:20px;border:1px solid var(--rim);background:var(--glass);backdrop-filter:var(--blur);position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s;}
+.feat-card:hover{transform:translateY(-4px);box-shadow:0 20px 60px rgba(0,0,0,.5);}
+.feat-card::after{content:'';position:absolute;inset:0;border-radius:20px;opacity:0;transition:opacity .3s;}
+.feat-card:nth-child(1):hover::after{background:radial-gradient(ellipse at 50% 0%,rgba(0,255,180,0.06),transparent 70%);opacity:1;}
+.feat-card:nth-child(2):hover::after{background:radial-gradient(ellipse at 50% 0%,rgba(255,170,40,0.06),transparent 70%);opacity:1;}
+.feat-card:nth-child(3):hover::after{background:radial-gradient(ellipse at 50% 0%,rgba(176,111,255,0.06),transparent 70%);opacity:1;}
+.feat-card:nth-child(4):hover::after{background:radial-gradient(ellipse at 50% 0%,rgba(0,200,255,0.06),transparent 70%);opacity:1;}
+
+.feat-tag{display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:100px;font-size:0.65rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;}
+.ft-t{background:rgba(0,255,180,0.08);color:var(--teal);border:1px solid rgba(0,255,180,0.2);}
+.ft-a{background:rgba(255,170,40,0.08);color:var(--amber);border:1px solid rgba(255,170,40,0.2);}
+.ft-v{background:rgba(176,111,255,0.08);color:var(--violet);border:1px solid rgba(176,111,255,0.2);}
+.ft-b{background:rgba(0,200,255,0.08);color:#00c8ff;border:1px solid rgba(0,200,255,0.2);}
+
+.feat-card h3{font-size:1.25rem;font-weight:700;letter-spacing:-.3px;margin-bottom:10px;}
+.feat-card p{color:var(--muted);font-size:0.9rem;line-height:1.7;}
+.feat-card .feat-num{position:absolute;top:20px;right:24px;font-family:var(--mono);font-size:3rem;font-weight:300;color:rgba(0,255,180,0.05);line-height:1;}
+
+/* PIPELINE */
+.pipeline{background:rgba(0,255,180,0.02);border-top:1px solid var(--rim);border-bottom:1px solid var(--rim);}
+.pipeline-inner{max-width:1100px;margin:0 auto;padding:6rem 2rem;}
+.pipeline-inner h2{font-size:2rem;font-weight:800;letter-spacing:-1px;text-align:center;margin-bottom:4rem;}
+
+.pipe-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;}
+@media(max-width:700px){.pipe-steps{grid-template-columns:1fr;}}
+
+.pipe-step{padding:28px 24px;border-radius:16px;border:1px solid var(--rim);background:var(--glass);backdrop-filter:var(--blur);position:relative;}
+.pipe-num{font-family:var(--mono);font-size:0.68rem;font-weight:500;color:var(--teal);letter-spacing:2px;margin-bottom:12px;}
+.pipe-step h4{font-size:1rem;font-weight:700;margin-bottom:8px;}
+.pipe-step p{font-size:0.83rem;color:var(--muted);line-height:1.65;}
+.pipe-step .pi{position:absolute;top:22px;right:22px;font-size:1.4rem;opacity:.6;}
+
+/* CTA */
+.cta-section{max-width:700px;margin:0 auto;padding:8rem 2rem;text-align:center;}
+.cta-section h2{font-size:2.5rem;font-weight:800;letter-spacing:-1.5px;line-height:1.1;margin-bottom:1.2rem;}
+.cta-section p{color:var(--muted);font-size:1rem;line-height:1.75;margin-bottom:2.5rem;}
+.cta-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+
+.cta-glow{position:relative;display:inline-block;}
+.cta-glow::before{content:'';position:absolute;inset:-1px;border-radius:100px;background:linear-gradient(135deg,var(--teal),var(--amber));z-index:-1;opacity:.5;filter:blur(12px);}
+</style>
+
+<section class="hero">
+  <div class="hero-pre"><span></span>ICIMIA-2025 · DFA-AOKGE Implementation</div>
+  <h1>Evidence that<br><span class="hl-t">can't be broken.</span><br>Security that<br><span class="hl-a">can't be faked.</span></h1>
+  <p>Blockchain-distributed digital forensics with EEO-optimized key generation, multi-key homomorphic encryption, and SBVM authentication. Built for investigators who need absolute certainty.</p>
+  <div class="hero-cta">
+    <div class="cta-glow"><a href="{{ url_for('register') }}" class="btn btn-t">Start Securing Evidence</a></div>
+    <a href="{{ url_for('how_it_works') }}" class="btn btn-g">Explore the Architecture →</a>
+  </div>
+  <div class="hero-stats">
+    <div class="hstat"><div class="hstat-n t">256-bit</div><div class="hstat-l">SHA Hashing</div></div>
+    <div class="hstat-sep"></div>
+    <div class="hstat"><div class="hstat-n a">EEO</div><div class="hstat-l">Key Optimizer</div></div>
+    <div class="hstat-sep"></div>
+    <div class="hstat"><div class="hstat-n v">MHE</div><div class="hstat-l">Homomorphic</div></div>
+    <div class="hstat-sep"></div>
+    <div class="hstat"><div class="hstat-n t">SBVM</div><div class="hstat-l">Auth Protocol</div></div>
+  </div>
+</section>
+
+<div class="marquee-wrap">
+  <div class="marquee-inner">
+    {% for item in ['Blockchain Distributed','EEO Key Generation','MHE Encryption','SBVM Authentication','Chain of Custody','Immutable Ledger','Digital Forensics','IaaS Cloud Platform','SHA-256 Hashing','Zero-Trust Access','Blockchain Distributed','EEO Key Generation','MHE Encryption','SBVM Authentication','Chain of Custody','Immutable Ledger','Digital Forensics','IaaS Cloud Platform','SHA-256 Hashing','Zero-Trust Access'] %}
+    <div class="marquee-item">{{ item }}</div>
+    {% endfor %}
+  </div>
+</div>
+
+<section class="features">
+  <div class="feat-header">
+    <div class="eyebrow" style="justify-content:center">Core Technology</div>
+    <h2>Four pillars of<br>unbreakable evidence</h2>
+    <p>Every piece of forensic data flows through a cryptographic gauntlet before touching storage.</p>
+  </div>
+  <div class="feat-grid">
+    <div class="feat-card">
+      <div class="feat-num">01</div>
+      <div class="feat-tag ft-t">Distributed Ledger</div>
+      <h3>Blockchain Architecture</h3>
+      <p>Evidence is distributed across multiple peer nodes using blockchain consensus. Each block chains to its predecessor via cryptographic hash, making retrospective tampering computationally impossible.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-num">02</div>
+      <div class="feat-tag ft-a">Swarm Intelligence</div>
+      <h3>EEO Key Generation</h3>
+      <p>The Enhanced Equilibrium Optimizer employs a population of candidate keys, iterating via thermodynamic equilibrium equations to evolve the highest-entropy secret key for each evidence file.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-num">03</div>
+      <div class="feat-tag ft-v">Compute on Ciphertext</div>
+      <h3>Homomorphic Encryption</h3>
+      <p>Multi-key homomorphic encryption allows integrity verification to happen directly on encrypted data. The plaintext is never exposed — not even to the cloud storage infrastructure.</p>
+    </div>
+    <div class="feat-card">
+      <div class="feat-num">04</div>
+      <div class="feat-tag ft-b">Identity & Access</div>
+      <h3>SBVM Authentication</h3>
+      <p>The Secure Block Verification Mechanism enforces role-based identity checks before any evidence access. Every action is cryptographically logged, building an unbreakable chain of custody.</p>
+    </div>
+  </div>
+</section>
+
+<div class="pipeline">
+  <div class="pipeline-inner">
+    <h2>The evidence pipeline</h2>
+    <div class="pipe-steps">
+      {% for s in [
+        ('01','Ingest','Evidence enters the IaaS cloud. Origin timestamp and investigator identity are recorded.','📥'),
+        ('02','Hash','SHA-256 fingerprint is computed on raw data — establishing the ground truth.','🔢'),
+        ('03','EEO Key','The Enhanced Equilibrium Optimizer generates a unique high-entropy secret key.','🧬'),
+        ('04','MHE Encrypt','Multi-key homomorphic encryption seals the evidence. Plaintext is discarded.','🔐'),
+        ('05','Mine Block','SBVM runs proof-of-work to produce a valid block hash starting with 00.','⛏'),
+        ('06','Commit','The verified block is appended to the immutable blockchain ledger.','⛓'),
+      ] %}
+      <div class="pipe-step">
+        <div class="pi">{{ s[3] }}</div>
+        <div class="pipe-num">{{ s[0] }} / 06</div>
+        <h4>{{ s[1] }}</h4>
+        <p>{{ s[2] }}</p>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<div class="cta-section">
+  <div class="eyebrow" style="justify-content:center">Get Started</div>
+  <h2>Your evidence deserves certainty.</h2>
+  <p>Create an account to begin submitting digital forensic evidence with full blockchain protection, automatic key generation, and homomorphic encryption.</p>
+  <div class="cta-btns">
+    <div class="cta-glow"><a href="{{ url_for('register') }}" class="btn btn-t">Create Free Account</a></div>
+    <a href="{{ url_for('login') }}" class="btn btn-g">Sign In</a>
+  </div>
+</div>
+{% endblock %}

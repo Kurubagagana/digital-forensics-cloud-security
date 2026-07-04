@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block title %}Login · FORENSIQ{% endblock %}
+{% block content %}
+<style>
+.auth-layout{min-height:calc(100vh - 66px);display:grid;grid-template-columns:1fr 1fr;}
+@media(max-width:800px){.auth-layout{grid-template-columns:1fr;}}
+
+.auth-left{display:flex;flex-direction:column;justify-content:center;padding:5rem 4rem;border-right:1px solid var(--rim);position:relative;overflow:hidden;}
+.auth-left::before{content:'';position:absolute;top:-100px;left:-100px;width:500px;height:500px;border-radius:50%;background:radial-gradient(circle,rgba(0,255,180,0.08),transparent 70%);pointer-events:none;}
+.auth-left::after{content:'';position:absolute;bottom:-100px;right:-50px;width:350px;height:350px;border-radius:50%;background:radial-gradient(circle,rgba(255,170,40,0.06),transparent 70%);pointer-events:none;}
+
+.al-tag{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border-radius:100px;border:1px solid var(--rim);background:rgba(0,255,180,0.04);font-size:0.68rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--teal);margin-bottom:2rem;}
+.al-tag span{width:5px;height:5px;border-radius:50%;background:var(--teal);animation:gp 1.8s infinite;}
+@keyframes gp{0%,100%{box-shadow:0 0 6px var(--teal)}50%{box-shadow:0 0 14px var(--teal)}}
+
+.auth-left h1{font-size:2.4rem;font-weight:800;letter-spacing:-1.5px;line-height:1.1;margin-bottom:1.2rem;}
+.auth-left h1 em{font-style:normal;background:linear-gradient(135deg,var(--teal),#00ccff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.auth-left p{color:var(--muted);font-size:0.95rem;line-height:1.7;max-width:380px;margin-bottom:2.5rem;}
+
+.feat-list{display:flex;flex-direction:column;gap:12px;}
+.feat-item{display:flex;align-items:center;gap:12px;font-size:0.88rem;color:var(--muted);}
+.feat-item .fi-dot{width:22px;height:22px;border-radius:50%;background:rgba(0,255,180,0.1);border:1px solid rgba(0,255,180,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:0.65rem;color:var(--teal);}
+
+.auth-right{display:flex;flex-direction:column;justify-content:center;align-items:center;padding:5rem 3rem;}
+@media(max-width:800px){.auth-left{display:none;}.auth-right{padding:4rem 2rem;}}
+
+.auth-box{width:100%;max-width:400px;}
+.auth-box h2{font-size:1.8rem;font-weight:800;letter-spacing:-0.8px;margin-bottom:0.4rem;}
+.auth-box .sub{color:var(--muted);font-size:0.9rem;margin-bottom:2.5rem;}
+
+.input-row{position:relative;}
+.input-prefix{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--teal);font-size:0.8rem;pointer-events:none;font-family:var(--mono);}
+.input-row .fi{padding-left:44px;}
+
+.divider{display:flex;align-items:center;gap:12px;margin:20px 0;color:var(--muted2);font-size:0.78rem;}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--rim);}
+
+.demo-pill{background:rgba(0,255,180,0.04);border:1px solid var(--rim);border-radius:12px;padding:14px 18px;font-size:0.82rem;color:var(--muted);}
+.demo-pill code{color:var(--teal);font-family:var(--mono);background:rgba(0,255,180,0.08);padding:2px 8px;border-radius:6px;font-size:0.78rem;}
+
+.auth-footer{margin-top:20px;text-align:center;font-size:0.87rem;color:var(--muted2);}
+.auth-footer a{color:var(--teal);text-decoration:none;font-weight:600;}
+.auth-footer a:hover{text-decoration:underline;}
+</style>
+
+<div class="auth-layout">
+  <div class="auth-left">
+    <div class="al-tag"><span></span> Secure Access Portal</div>
+    <h1>Welcome<br>back to<br><em>FORENSIQ</em></h1>
+    <p>Sign in to access your encrypted evidence vault and blockchain-secured forensic workspace.</p>
+    <div class="feat-list">
+      <div class="feat-item"><div class="fi-dot">✓</div>Blockchain-distributed evidence storage</div>
+      <div class="feat-item"><div class="fi-dot">✓</div>SBVM multi-layer authentication</div>
+      <div class="feat-item"><div class="fi-dot">✓</div>EEO-optimized per-file encryption keys</div>
+      <div class="feat-item"><div class="fi-dot">✓</div>Immutable chain-of-custody audit log</div>
+      <div class="feat-item"><div class="fi-dot">✓</div>Multi-key homomorphic encryption</div>
+    </div>
+  </div>
+
+  <div class="auth-right">
+    <div class="auth-box">
+      <h2>Sign in</h2>
+      <p class="sub">Enter your credentials to access the vault</p>
+      <form method="POST">
+        <div class="fl">
+          <label class="flb">Username</label>
+          <div class="input-row">
+            <span class="input-prefix">@</span>
+            <input name="username" class="fi" placeholder="your_username" required autocomplete="username">
+          </div>
+        </div>
+        <div class="fl">
+          <label class="flb">Password</label>
+          <div class="input-row">
+            <span class="input-prefix">••</span>
+            <input name="password" type="password" class="fi" placeholder="••••••••••" required>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-t" style="width:100%;justify-content:center;padding:14px 26px;border-radius:14px;font-size:0.95rem;">
+          Authenticate & Enter →
+        </button>
+      </form>
+      <div class="demo-pill" style="margin-top:16px;">
+        Demo admin — user: <code>admin</code> &nbsp; pass: <code>admin123</code>
+      </div>
+      <div class="divider">or</div>
+      <div class="auth-footer">No account? <a href="{{ url_for('register') }}">Create one free →</a></div>
+    </div>
+  </div>
+</div>
+{% endblock %}

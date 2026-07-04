@@ -1,0 +1,343 @@
+{% extends 'base.html' %}
+{% block title %}Evidence · {{ ev.filename }} · FORENSIQ{% endblock %}
+{% block content %}
+<style>
+.ed-wrap{max-width:1000px;margin:0 auto;padding:3rem 2rem;}
+
+/* BREADCRUMB */
+.bc{display:flex;align-items:center;gap:8px;font-size:0.78rem;color:var(--muted2);margin-bottom:2rem;}
+.bc a{color:var(--teal);text-decoration:none;}.bc a:hover{text-decoration:underline;}
+.bc-sep{opacity:.4;}
+
+/* HERO ROW */
+.ev-hero{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:2.5rem;}
+.ev-hero h1{font-size:1.6rem;font-weight:800;letter-spacing:-0.8px;margin-bottom:6px;word-break:break-all;}
+.ev-hero h1 span{color:var(--teal);}
+.ev-hero p{color:var(--muted);font-size:0.88rem;}
+.ev-actions{display:flex;gap:10px;flex-wrap:wrap;}
+
+/* INFO GRID */
+.info-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:2rem;}
+@media(max-width:640px){.info-grid{grid-template-columns:1fr;}}
+.info-card{padding:20px 22px;border-radius:16px;border:1px solid var(--rim);background:var(--glass);backdrop-filter:blur(20px);}
+.ic-label{font-size:0.65rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted2);margin-bottom:6px;}
+.ic-val{font-family:var(--mono);font-size:0.8rem;color:var(--ice);word-break:break-all;line-height:1.5;}
+.ic-val.teal{color:var(--teal);}
+.ic-val.amber{color:var(--amber);}
+
+/* PIPELINE VISUAL */
+.pipe-visual{display:flex;align-items:center;gap:0;overflow-x:auto;padding:2rem;background:var(--glass);backdrop-filter:blur(20px);border:1px solid var(--rim);border-radius:20px;margin-bottom:2rem;}
+.pv-step{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:90px;flex:1;text-align:center;}
+.pv-ico{width:52px;height:52px;border-radius:14px;border:1px solid var(--rim);background:rgba(0,255,180,0.04);display:flex;align-items:center;justify-content:center;font-size:1.3rem;}
+.pv-label{font-size:0.62rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2);}
+.pv-arr{color:rgba(0,255,180,0.2);font-size:1.1rem;padding:0 4px;flex-shrink:0;margin-bottom:14px;}
+
+/* MAIN PANELS */
+.panels{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:2rem;}
+@media(max-width:720px){.panels{grid-template-columns:1fr;}}
+.panel{border-radius:20px;border:1px solid var(--rim);background:var(--glass);backdrop-filter:blur(20px);overflow:hidden;}
+.panel-head{padding:18px 22px;border-bottom:1px solid var(--rim);display:flex;align-items:center;gap:12px;}
+.ph-ico{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0;}
+.phi-t{background:rgba(0,255,180,0.08);border:1px solid rgba(0,255,180,0.15);}
+.phi-a{background:rgba(255,170,40,0.08);border:1px solid rgba(255,170,40,0.15);}
+.phi-v{background:rgba(176,111,255,0.08);border:1px solid rgba(176,111,255,0.15);}
+.panel-head h3{font-size:0.88rem;font-weight:700;margin-bottom:1px;}
+.panel-head p{font-size:0.72rem;color:var(--muted2);}
+.panel-body{padding:20px 22px;}
+
+/* CODE BLOCKS */
+.code-block{background:rgba(0,0,0,.4);border:1px solid rgba(0,255,180,0.08);border-radius:10px;padding:14px;font-family:var(--mono);font-size:0.75rem;color:var(--muted);line-height:1.6;word-break:break-all;max-height:160px;overflow-y:auto;white-space:pre-wrap;}
+.code-block.teal{color:var(--teal);}
+.code-block.amber{color:var(--amber);}
+
+/* DECRYPT PANEL — full width */
+.decrypt-panel{border-radius:20px;border:1px solid var(--rim);background:var(--glass);backdrop-filter:blur(20px);overflow:hidden;margin-bottom:2rem;}
+.dp-head{padding:20px 24px;border-bottom:1px solid var(--rim);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.dp-head h2{font-family:var(--font);font-size:1rem;font-weight:700;}
+.dp-head p{font-size:0.82rem;color:var(--muted);margin-top:2px;}
+.dp-body{padding:24px;}
+
+/* STEPS */
+.decrypt-steps{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px;}
+@media(max-width:640px){.decrypt-steps{grid-template-columns:repeat(2,1fr);}}
+.ds-step{padding:14px 12px;border-radius:12px;border:1px solid var(--rim);background:rgba(0,0,0,.2);text-align:center;transition:all .3s;}
+.ds-step.active{border-color:rgba(0,255,180,0.3);background:rgba(0,255,180,0.06);}
+.ds-step.done{border-color:rgba(0,255,180,0.25);background:rgba(0,255,180,0.04);}
+.ds-num{font-family:var(--mono);font-size:0.62rem;color:var(--muted2);margin-bottom:6px;}
+.ds-label{font-size:0.78rem;font-weight:700;color:var(--muted2);transition:color .3s;}
+.ds-step.active .ds-label,.ds-step.done .ds-label{color:var(--teal);}
+
+.result-area{background:rgba(0,0,0,.4);border:1px solid rgba(0,255,180,0.1);border-radius:14px;padding:20px;min-height:120px;position:relative;}
+.result-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100px;color:var(--muted2);font-size:0.88rem;gap:8px;}
+.result-placeholder .rp-ico{font-size:2rem;opacity:.3;}
+
+.result-content{display:none;}
+.result-content.show{display:block;}
+.rc-success-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;background:rgba(0,255,180,0.08);border:1px solid rgba(0,255,180,0.2);margin-bottom:14px;}
+.rc-fail-bar{display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;background:rgba(255,64,96,0.08);border:1px solid rgba(255,64,96,0.2);margin-bottom:14px;}
+.rc-bar-ico{font-size:1.1rem;}
+.rc-bar-text{font-size:0.86rem;font-weight:700;}
+.rc-bar-text.t{color:var(--teal);}.rc-bar-text.d{color:var(--danger);}
+
+.hash-compare{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;}
+@media(max-width:540px){.hash-compare{grid-template-columns:1fr;}}
+.hc-box{padding:12px 14px;border-radius:10px;background:rgba(0,0,0,.3);border:1px solid rgba(0,255,180,0.08);}
+.hc-label{font-size:0.65rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted2);margin-bottom:6px;}
+.hc-val{font-family:var(--mono);font-size:0.72rem;word-break:break-all;line-height:1.5;}
+.hc-match{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:100px;font-size:0.68rem;font-weight:700;margin-top:10px;}
+.hm-ok{background:rgba(0,255,180,0.1);color:var(--teal);border:1px solid rgba(0,255,180,0.2);}
+.hm-fail{background:rgba(255,64,96,0.1);color:var(--danger);border:1px solid rgba(255,64,96,0.2);}
+
+.plaintext-box{margin-top:14px;}
+.pb-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.pb-label{font-size:0.68rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--muted2);}
+.pb-copy{background:rgba(0,255,180,0.08);border:1px solid rgba(0,255,180,0.15);color:var(--teal);padding:4px 12px;border-radius:8px;font-size:0.72rem;font-weight:700;cursor:pointer;font-family:var(--font);transition:all .2s;}
+.pb-copy:hover{background:rgba(0,255,180,0.15);}
+.pb-text{background:rgba(0,0,0,.5);border:1px solid rgba(0,255,180,0.08);border-radius:10px;padding:14px;font-family:var(--mono);font-size:0.78rem;color:var(--ice);line-height:1.65;white-space:pre-wrap;word-break:break-all;max-height:200px;overflow-y:auto;}
+
+/* DOWNLOAD SECTION */
+.dl-section{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+@media(max-width:640px){.dl-section{grid-template-columns:1fr;}}
+.dl-card{padding:22px;border-radius:16px;border:1px solid var(--rim);background:var(--glass);backdrop-filter:blur(20px);display:flex;flex-direction:column;gap:12px;}
+.dl-card h4{font-size:0.9rem;font-weight:700;}
+.dl-card p{font-size:0.82rem;color:var(--muted);line-height:1.6;flex:1;}
+.dl-meta{font-family:var(--mono);font-size:0.7rem;color:var(--muted2);}
+
+/* SPINNER */
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{width:20px;height:20px;border:2px solid rgba(0,255,180,0.15);border-top-color:var(--teal);border-radius:50%;animation:spin .7s linear infinite;display:inline-block;}
+</style>
+
+<div class="ed-wrap">
+  <!-- Breadcrumb -->
+  <div class="bc">
+    <a href="{{ url_for('dashboard') }}">Dashboard</a>
+    <span class="bc-sep">›</span>
+    <span>{{ ev.filename }}</span>
+  </div>
+
+  <!-- Header -->
+  <div class="ev-hero">
+    <div>
+      <h1><span>⬡</span> {{ ev.filename }}</h1>
+      <p>Evidence ID: {{ ev.id }} &bull; Block: <strong style="color:var(--teal)">{{ ev.block_id }}</strong> &bull; {{ ev.uploaded_at[:16] }}</p>
+    </div>
+    <div class="ev-actions">
+      <a href="{{ url_for('download', ev_id=ev.id) }}" class="btn btn-t btn-sm">↓ Download Plaintext</a>
+      <a href="{{ url_for('download_encrypted', ev_id=ev.id) }}" class="btn btn-g btn-sm">↓ Download Encrypted</a>
+      <a href="{{ url_for('dashboard') }}" class="btn btn-g btn-sm">← Back</a>
+    </div>
+  </div>
+
+  <!-- Pipeline visual -->
+  <div class="pipe-visual">
+    {% for step in [('📥','Ingest'),('🔢','SHA-256'),('🧬','EEO Key'),('🔐','MHE Enc.'),('⛏','Mined'),('⛓','On-Chain')] %}
+    <div class="pv-step">
+      <div class="pv-ico">{{ step[0] }}</div>
+      <div class="pv-label">{{ step[1] }}</div>
+    </div>
+    {% if not loop.last %}<div class="pv-arr">→</div>{% endif %}
+    {% endfor %}
+  </div>
+
+  <!-- Info grid -->
+  <div class="info-grid">
+    <div class="info-card">
+      <div class="ic-label">Original SHA-256 Hash</div>
+      <div class="ic-val teal">{{ ev.original_hash }}</div>
+    </div>
+    <div class="info-card">
+      <div class="ic-label">Encrypted SHA-256 Hash</div>
+      <div class="ic-val amber">{{ ev.encrypted_hash }}</div>
+    </div>
+    <div class="info-card">
+      <div class="ic-label">EEO Encryption Key (preview)</div>
+      <div class="ic-val" style="color:var(--violet)">{{ ev.encryption_key[:8] }}...{{ ev.encryption_key[-4:] }} <span style="color:var(--muted2);font-size:.68rem">({{ ev.encryption_key|length }} chars)</span></div>
+    </div>
+    <div class="info-card">
+      <div class="ic-label">Blockchain Block</div>
+      <div class="ic-val teal">{{ block.block_hash[:32] if block else 'N/A' }}...</div>
+      {% if block %}
+      <div class="ic-val" style="margin-top:6px;color:var(--muted2);font-size:.7rem">nonce: {{ block.nonce }} &bull; {{ block.timestamp[:16] if block.timestamp else '' }}</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Encrypted / Original side-by-side panels -->
+  <div class="panels">
+    <div class="panel">
+      <div class="panel-head">
+        <div class="ph-ico phi-a">🔐</div>
+        <div><h3>Encrypted Data</h3><p>MHE ciphertext stored on server</p></div>
+      </div>
+      <div class="panel-body">
+        <div class="code-block amber">{{ ev.encrypted_data[:300] }}{% if ev.encrypted_data|length > 300 %}…{% endif %}</div>
+        <div style="margin-top:10px;font-size:0.72rem;color:var(--muted2);font-family:var(--mono)">{{ ev.encrypted_data|length }} chars &bull; XOR-MHE encoded</div>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="panel-head">
+        <div class="ph-ico phi-v">⛓</div>
+        <div><h3>Blockchain Record</h3><p>Immutable ledger entry</p></div>
+      </div>
+      <div class="panel-body">
+        {% if block %}
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          {% for lbl,val in [('Block #', block.id),('Block Hash', block.block_hash),('Prev Hash', block.prev_hash[:32]+'...'),('Nonce', block.nonce),('Timestamp', block.timestamp[:19] if block.timestamp else 'N/A'),('Status','✓ Verified')] %}
+          <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(0,255,180,.06);padding-bottom:8px;font-size:.8rem;">
+            <span style="color:var(--muted2);font-size:.68rem;letter-spacing:1px;text-transform:uppercase">{{ lbl }}</span>
+            <span style="font-family:var(--mono);font-size:.72rem;color:var(--ice);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ val }}</span>
+          </div>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p style="color:var(--muted2)">No block record found.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- DECRYPT PANEL -->
+  <div class="decrypt-panel">
+    <div class="dp-head">
+      <div>
+        <h2>🔓 Decrypt Evidence</h2>
+        <p>SBVM integrity check → MHE decryption → SHA-256 verification</p>
+      </div>
+      <button class="btn btn-t" id="decryptBtn" onclick="doDecrypt({{ ev.id }})">
+        Run Decryption
+      </button>
+    </div>
+    <div class="dp-body">
+      <div class="decrypt-steps">
+        <div class="ds-step" id="ds1"><div class="ds-num">01</div><div class="ds-label">SBVM Integrity Check</div></div>
+        <div class="ds-step" id="ds2"><div class="ds-num">02</div><div class="ds-label">Load Encryption Key</div></div>
+        <div class="ds-step" id="ds3"><div class="ds-num">03</div><div class="ds-label">MHE Decryption</div></div>
+        <div class="ds-step" id="ds4"><div class="ds-num">04</div><div class="ds-label">Hash Verification</div></div>
+      </div>
+
+      <div class="result-area">
+        <div class="result-placeholder" id="rplaceholder">
+          <div class="rp-ico">🔐</div>
+          <span>Click "Run Decryption" to decrypt this evidence</span>
+        </div>
+
+        <div class="result-content" id="rcontent">
+          <!-- Filled by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- DOWNLOAD SECTION -->
+  <div class="eyebrow">Downloads</div>
+  <div class="dl-section">
+    <div class="dl-card">
+      <h4>📄 Plaintext Evidence</h4>
+      <p>Download the original decrypted evidence file. SBVM integrity is verified before download is allowed. The file hash is included in response headers.</p>
+      <div class="dl-meta">Hash: {{ ev.original_hash[:24] }}...</div>
+      <a href="{{ url_for('download', ev_id=ev.id) }}" class="btn btn-t btn-sm" style="align-self:flex-start">↓ Download {{ ev.filename }}</a>
+    </div>
+    <div class="dl-card">
+      <h4>🔐 Encrypted Blob</h4>
+      <p>Download the raw MHE-encrypted data as stored on the server. This is the ciphertext — it cannot be read without the EEO-generated decryption key.</p>
+      <div class="dl-meta">Enc. hash: {{ ev.encrypted_hash[:24] }}...</div>
+      <a href="{{ url_for('download_encrypted', ev_id=ev.id) }}" class="btn btn-g btn-sm" style="align-self:flex-start">↓ Download .enc blob</a>
+    </div>
+  </div>
+</div>
+
+<script>
+function setStep(n, state) {
+  const el = document.getElementById('ds' + n);
+  el.className = 'ds-step ' + state;
+}
+
+async function doDecrypt(id) {
+  const btn = document.getElementById('decryptBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Decrypting...';
+
+  // Animate steps
+  document.getElementById('rplaceholder').style.display = 'none';
+  document.getElementById('rcontent').classList.remove('show');
+
+  const delays = [0, 500, 1000, 1600];
+  delays.forEach((d, i) => setTimeout(() => setStep(i + 1, 'active'), d));
+
+  try {
+    const resp = await fetch(`/decrypt/${id}`);
+    const data = await resp.json();
+
+    // Mark all done
+    setTimeout(() => {
+      [1,2,3,4].forEach(n => setStep(n, data.success ? 'done' : 'idle'));
+      renderResult(data);
+      btn.disabled = false;
+      btn.innerHTML = 'Run Decryption';
+    }, 2200);
+
+  } catch (e) {
+    document.getElementById('rcontent').innerHTML = `<div style="color:var(--danger)">Network error: ${e.message}</div>`;
+    document.getElementById('rcontent').classList.add('show');
+    btn.disabled = false;
+    btn.innerHTML = 'Run Decryption';
+  }
+}
+
+function renderResult(data) {
+  const rc = document.getElementById('rcontent');
+  if (!data.success) {
+    rc.innerHTML = `
+      <div class="rc-fail-bar">
+        <span class="rc-bar-ico">❌</span>
+        <span class="rc-bar-text d">${data.error}</span>
+      </div>`;
+  } else {
+    const matchHtml = data.hash_match
+      ? `<span class="hc-match hm-ok">● Hashes match — evidence is authentic</span>`
+      : `<span class="hc-match hm-fail">● Hash MISMATCH — evidence may be tampered</span>`;
+
+    rc.innerHTML = `
+      <div class="rc-success-bar">
+        <span class="rc-bar-ico">✅</span>
+        <span class="rc-bar-text t">Decryption successful — SBVM integrity verified</span>
+      </div>
+      <div class="hash-compare">
+        <div class="hc-box">
+          <div class="hc-label">Original Hash (at upload)</div>
+          <div class="hc-val" style="color:var(--teal)">${data.original_hash}</div>
+        </div>
+        <div class="hc-box">
+          <div class="hc-label">Decrypted Hash (now)</div>
+          <div class="hc-val" style="color:${data.hash_match ? 'var(--teal)' : 'var(--danger)'}">${data.decrypted_hash}</div>
+        </div>
+      </div>
+      ${matchHtml}
+      <div class="plaintext-box">
+        <div class="pb-header">
+          <span class="pb-label">Decrypted Plaintext</span>
+          <button class="pb-copy" onclick="copyText()">Copy</button>
+        </div>
+        <div class="pb-text" id="ptbox">${escHtml(data.plaintext)}</div>
+      </div>
+      <div style="margin-top:12px;font-size:.72rem;color:var(--muted2);font-family:var(--mono)">
+        Key (first 8 chars): <span style="color:var(--violet)">${data.key_preview}</span>
+      </div>`;
+  }
+  rc.classList.add('show');
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function copyText() {
+  const t = document.getElementById('ptbox');
+  navigator.clipboard.writeText(t.innerText).then(() => {
+    const btn = document.querySelector('.pb-copy');
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 2000);
+  });
+}
+</script>
+{% endblock %}

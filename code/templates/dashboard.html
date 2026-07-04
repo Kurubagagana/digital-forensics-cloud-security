@@ -1,0 +1,270 @@
+{% extends 'base.html' %}
+{% block title %}Dashboard · FORENSIQ{% endblock %}
+{% block content %}
+<style>
+.dash{max-width:1400px;margin:0 auto;padding:2.5rem 2rem;}
+
+.dash-head{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:2.5rem;}
+.dash-head-left h1{font-size:1.6rem;font-weight:800;letter-spacing:-0.8px;margin-bottom:4px;}
+.dash-head-left p{color:var(--muted);font-size:0.88rem;}
+.role-chip{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:100px;font-size:0.65rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;margin-left:10px;vertical-align:middle;}
+.rc-admin{background:rgba(255,170,40,0.1);color:var(--amber);border:1px solid rgba(255,170,40,0.25);}
+.rc-user{background:rgba(0,255,180,0.08);color:var(--teal);border:1px solid rgba(0,255,180,0.2);}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:2.5rem;}
+@media(max-width:900px){.stats-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:480px){.stats-grid{grid-template-columns:1fr;}}
+
+.stat{padding:24px;border-radius:18px;border:1px solid var(--rim);background:var(--glass);backdrop-filter:var(--blur);position:relative;overflow:hidden;transition:transform .2s;}
+.stat:hover{transform:translateY(-3px);}
+.stat::before{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;}
+.stat:nth-child(1)::before{background:linear-gradient(90deg,transparent,var(--teal),transparent);}
+.stat:nth-child(2)::before{background:linear-gradient(90deg,transparent,var(--amber),transparent);}
+.stat:nth-child(3)::before{background:linear-gradient(90deg,transparent,var(--violet),transparent);}
+.stat:nth-child(4)::before{background:linear-gradient(90deg,transparent,#00ccff,transparent);}
+.stat-v{font-size:2.5rem;font-weight:800;letter-spacing:-1.5px;line-height:1;}
+.sv-t{background:linear-gradient(135deg,var(--teal),#00ccff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.sv-a{background:linear-gradient(135deg,var(--amber),#ff6b35);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.sv-v{background:linear-gradient(135deg,var(--violet),#e040fb);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.sv-b{background:linear-gradient(135deg,#00ccff,#0090ff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.stat-l{font-size:0.7rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted2);margin-top:8px;}
+.stat-ico{position:absolute;top:18px;right:20px;font-size:1.8rem;opacity:.15;}
+
+/* TABS */
+.tabs{display:flex;gap:2px;margin-bottom:24px;background:rgba(0,255,180,0.03);border:1px solid var(--rim);border-radius:14px;padding:5px;}
+.tab{padding:9px 18px;border-radius:10px;font-size:0.8rem;font-weight:700;letter-spacing:.5px;color:var(--muted2);background:none;border:none;cursor:pointer;font-family:var(--font);transition:all .2s;}
+.tab:hover{color:var(--ice);}
+.tab.on{background:rgba(0,255,180,0.08);color:var(--teal);border:1px solid rgba(0,255,180,0.15);}
+
+.tpane{display:none;}
+.tpane.on{display:block;}
+
+/* EVIDENCE CARDS */
+.ev-empty{text-align:center;padding:5rem 2rem;border:1px dashed var(--rim);border-radius:20px;color:var(--muted2);}
+.ev-empty .ee-ico{font-size:3rem;margin-bottom:1rem;opacity:.3;}
+
+/* CHAIN VISUAL */
+.chain-scroll{overflow-x:auto;padding-bottom:12px;margin-bottom:24px;}
+.chain-row{display:flex;gap:10px;align-items:stretch;min-width:max-content;}
+.block-card{min-width:170px;padding:16px;border-radius:14px;border:1px solid var(--rim);background:var(--glass);backdrop-filter:var(--blur);}
+.block-card.genesis{border-color:rgba(0,255,180,0.25);}
+.bc-id{font-family:var(--mono);font-size:0.62rem;color:var(--teal);margin-bottom:6px;font-weight:500;}
+.bc-hash{font-family:var(--mono);font-size:0.6rem;color:var(--muted2);word-break:break-all;line-height:1.4;}
+.bc-prev{font-family:var(--mono);font-size:0.58rem;color:rgba(255,170,40,0.5);margin-top:4px;}
+.bc-nonce{font-size:0.62rem;color:var(--muted2);margin-top:6px;font-family:var(--mono);}
+.bc-badge{margin-top:8px;}
+.chain-conn{display:flex;align-items:center;color:rgba(0,255,180,0.2);font-size:1.1rem;padding:0 2px;}
+
+/* AUDIT LOG */
+.alog-item{display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid rgba(0,255,180,0.05);}
+.alog-item:last-child{border-bottom:none;}
+.al-act{padding:4px 10px;border-radius:8px;font-size:0.64rem;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;min-width:64px;text-align:center;}
+.al-LOGIN{background:rgba(0,255,180,0.08);color:var(--teal);}
+.al-UPLOAD{background:rgba(255,170,40,0.08);color:var(--amber);}
+.al-VERIFY{background:rgba(176,111,255,0.08);color:var(--violet);}
+.al-detail{flex:1;font-size:0.84rem;color:var(--muted);}
+.al-time{font-family:var(--mono);font-size:0.7rem;color:var(--muted2);}
+
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(12px);z-index:500;align-items:center;justify-content:center;}
+.modal-bg.open{display:flex;}
+.modal{background:rgba(4,16,28,.95);border:1px solid var(--rim);border-radius:24px;padding:36px;max-width:460px;width:90%;position:relative;animation:fadeup .3s ease both;}
+@keyframes fadeup{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.modal-x{position:absolute;top:16px;right:16px;background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem;padding:6px;border-radius:8px;}
+.modal-x:hover{color:var(--ice);background:rgba(255,255,255,.05);}
+.modal h3{font-size:1rem;font-weight:700;margin-bottom:22px;color:var(--teal);}
+.vr-wrap{text-align:center;padding:16px 0;}
+.vr-ico{font-size:3.5rem;margin-bottom:12px;}
+.vr-msg{font-size:1rem;font-weight:700;}
+
+/* verify btn */
+.vbtn{background:rgba(0,255,180,0.08);border:1px solid rgba(0,255,180,0.2);color:var(--teal);padding:5px 14px;border-radius:8px;cursor:pointer;font-size:0.72rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;font-family:var(--font);transition:all .2s;}
+.vbtn:hover{background:rgba(0,255,180,0.15);}
+
+.hash-mono{font-family:var(--mono);font-size:0.72rem;color:var(--muted);max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:inline-block;}
+</style>
+
+<div class="dash">
+  <div class="dash-head">
+    <div class="dash-head-left">
+      <h1>
+        {% if session.role=='admin' %}Command Center{% else %}Evidence Vault{% endif %}
+        <span class="role-chip {% if session.role=='admin' %}rc-admin{% else %}rc-user{% endif %}">{{ session.role }}</span>
+      </h1>
+      <p>Welcome back, <strong style="color:var(--teal)">{{ session.username }}</strong> — FORENSIQ Digital Evidence Management</p>
+    </div>
+    <a href="{{ url_for('upload') }}" class="btn btn-t">+ Upload Evidence</a>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-grid">
+    <div class="stat"><div class="stat-ico">📁</div><div class="stat-v sv-t">{{ stats.total_evidence }}</div><div class="stat-l">Evidence Files</div></div>
+    <div class="stat"><div class="stat-ico">✅</div><div class="stat-v sv-a">{{ stats.verified }}</div><div class="stat-l">Verified Integrity</div></div>
+    <div class="stat"><div class="stat-ico">⛓</div><div class="stat-v sv-v">{{ stats.blocks }}</div><div class="stat-l">Blockchain Blocks</div></div>
+    <div class="stat"><div class="stat-ico">👤</div><div class="stat-v sv-b">{{ stats.users }}</div><div class="stat-l">Registered Users</div></div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab on" onclick="stab(event,'ev')">Evidence</button>
+    <button class="tab" onclick="stab(event,'chain')">Blockchain</button>
+    <button class="tab" onclick="stab(event,'audit')">Audit Log</button>
+    {% if session.role=='admin' %}<button class="tab" onclick="stab(event,'users')">Users</button>{% endif %}
+  </div>
+
+  <!-- EVIDENCE -->
+  <div id="tp-ev" class="tpane on">
+    <div class="eyebrow">Stored Evidence</div>
+    {% if evidence %}
+    <div class="tscroll">
+      <table>
+        <thead><tr>
+          {% if session.role=='admin' %}<th>User</th>{% endif %}
+          <th>Filename</th><th>Block ID</th><th>Original Hash</th><th>Encrypted Hash</th><th>Enc. Key</th><th>Status</th><th>Date</th><th></th>
+        </tr></thead>
+        <tbody>
+          {% for e in evidence %}
+          <tr>
+            {% if session.role=='admin' %}<td style="color:var(--teal)">{{ e.username }}</td>{% endif %}
+            <td style="color:var(--ice);font-family:var(--font)">{{ e.filename }}</td>
+            <td><span class="bd bd-t">{{ e.block_id }}</span></td>
+            <td><span class="hash-mono" title="{{ e.original_hash }}">{{ e.original_hash }}</span></td>
+            <td><span class="hash-mono" title="{{ e.encrypted_hash }}">{{ e.encrypted_hash }}</span></td>
+            <td><span style="font-family:var(--mono);font-size:0.72rem;color:var(--amber)">{{ e.encryption_key }}</span></td>
+            <td><span class="bd bd-t">{{ e.integrity }}</span></td>
+            <td style="font-size:0.75rem;color:var(--muted2)">{{ e.uploaded_at[:16] }}</td>
+            <td style="display:flex;gap:6px;flex-wrap:wrap">
+              <button class="vbtn" onclick="doVerify({{ e.id }})">Verify</button>
+              <a href="{{ url_for('evidence_detail', ev_id=e.id) }}" class="vbtn" style="text-decoration:none">Detail</a>
+              <a href="{{ url_for('download', ev_id=e.id) }}" class="vbtn" style="text-decoration:none;background:rgba(255,170,40,0.08);border-color:rgba(255,170,40,0.2);color:var(--amber)">↓</a>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="ev-empty">
+      <div class="ee-ico">🔍</div>
+      <p style="margin-bottom:20px">No evidence files yet. Upload your first digital forensic data to get started.</p>
+      <a href="{{ url_for('upload') }}" class="btn btn-t">Upload Evidence</a>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- BLOCKCHAIN -->
+  <div id="tp-chain" class="tpane">
+    <div class="eyebrow">Blockchain Ledger</div>
+    {% if blocks %}
+    <div class="chain-scroll">
+      <div class="chain-row">
+        {% for b in blocks|reverse %}
+        <div class="block-card {% if loop.first %}genesis{% endif %}">
+          <div class="bc-id">BLOCK #{{ b.id }}</div>
+          <div class="bc-hash">{{ b.block_hash[:24] }}...</div>
+          <div class="bc-prev">↑ {{ b.prev_hash[:12] }}...</div>
+          <div class="bc-nonce">nonce: {{ b.nonce }}</div>
+          <div class="bc-badge"><span class="bd bd-t">verified</span></div>
+        </div>
+        {% if not loop.last %}<div class="chain-conn">→</div>{% endif %}
+        {% endfor %}
+      </div>
+    </div>
+    <div class="tscroll">
+      <table>
+        <thead><tr><th>Block</th><th>Hash</th><th>Prev Hash</th><th>Evidence</th><th>Nonce</th><th>Timestamp</th><th>Status</th></tr></thead>
+        <tbody>
+          {% for b in blocks %}
+          <tr>
+            <td style="color:var(--teal)">#{{ b.id }}</td>
+            <td><span class="hash-mono" title="{{ b.block_hash }}">{{ b.block_hash }}</span></td>
+            <td><span class="hash-mono" title="{{ b.prev_hash }}">{{ b.prev_hash }}</span></td>
+            <td>EV-{{ b.evidence_id }}</td>
+            <td style="color:var(--amber)">{{ b.nonce }}</td>
+            <td style="font-size:0.75rem;color:var(--muted2)">{{ b.timestamp[:16] if b.timestamp else '—' }}</td>
+            <td><span class="bd bd-t">Verified</span></td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="ev-empty"><div class="ee-ico">⛓</div><p>No blocks yet. Upload evidence to start the chain.</p></div>
+    {% endif %}
+  </div>
+
+  <!-- AUDIT -->
+  <div id="tp-audit" class="tpane">
+    <div class="eyebrow">Audit Trail</div>
+    {% if logs %}
+      {% for l in logs %}
+      <div class="alog-item">
+        <div class="al-act al-{{ l.action }}">{{ l.action }}</div>
+        <div class="al-detail">{% if session.role=='admin' %}<span style="color:var(--teal)">[{{ l.username }}]</span> {% endif %}{{ l.details }}</div>
+        <div class="al-time">{{ l.timestamp[:16] }}</div>
+      </div>
+      {% endfor %}
+    {% else %}
+    <div class="ev-empty"><div class="ee-ico">📋</div><p>No audit events yet.</p></div>
+    {% endif %}
+  </div>
+
+  <!-- USERS (admin) -->
+  {% if session.role=='admin' %}
+  <div id="tp-users" class="tpane">
+    <div class="eyebrow">Registered Users</div>
+    <div class="tscroll">
+      <table>
+        <thead><tr><th>ID</th><th>Username</th><th>Email</th><th>Role</th><th>Registered</th></tr></thead>
+        <tbody>
+          {% for u in users %}
+          <tr>
+            <td style="color:var(--muted2)">{{ u.id }}</td>
+            <td style="color:var(--ice);font-family:var(--font)">{{ u.username }}</td>
+            <td>{{ u.email }}</td>
+            <td><span class="bd {% if u.role=='admin' %}bd-a{% else %}bd-t{% endif %}">{{ u.role }}</span></td>
+            <td style="font-size:0.75rem;color:var(--muted2)">{{ u.created_at[:16] }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- VERIFY MODAL -->
+<div class="modal-bg" id="vmb">
+  <div class="modal">
+    <button class="modal-x" onclick="closeM()">✕</button>
+    <h3>⬡ SBVM Integrity Verification</h3>
+    <div class="vr-wrap" id="vr-content">
+      <div class="vr-ico">⏳</div>
+      <div class="vr-msg" style="color:var(--muted)">Running SBVM verification...</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function stab(e,id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.tpane').forEach(t=>t.classList.remove('on'));
+  e.target.classList.add('on');
+  document.getElementById('tp-'+id).classList.add('on');
+}
+function doVerify(id){
+  document.getElementById('vmb').classList.add('open');
+  document.getElementById('vr-content').innerHTML='<div class="vr-ico">⏳</div><div class="vr-msg" style="color:var(--muted)">Running SBVM verification...</div>';
+  fetch('/verify/'+id).then(r=>r.json()).then(d=>{
+    if(d.verified){
+      document.getElementById('vr-content').innerHTML=`<div class="vr-ico">✅</div><div class="vr-msg" style="color:var(--teal)">${d.message}</div><div style="margin-top:12px;font-size:.82rem;color:var(--muted)">Chain of custody confirmed on the blockchain ledger.</div>`;
+    } else {
+      document.getElementById('vr-content').innerHTML=`<div class="vr-ico">❌</div><div class="vr-msg" style="color:var(--danger)">${d.message}</div>`;
+    }
+  });
+}
+function closeM(){document.getElementById('vmb').classList.remove('open');}
+document.getElementById('vmb').addEventListener('click',e=>{if(e.target===document.getElementById('vmb'))closeM();});
+</script>
+{% endblock %}

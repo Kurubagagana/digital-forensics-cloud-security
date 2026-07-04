@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+{% block title %}Upload Evidence · FORENSIQ{% endblock %}
+{% block content %}
+<style>
+.up-wrap{max-width:1100px;margin:0 auto;padding:3rem 2rem;}
+
+.up-head{margin-bottom:3rem;}
+.up-head h1{font-size:1.8rem;font-weight:800;letter-spacing:-1px;margin-bottom:6px;}
+.up-head p{color:var(--muted);font-size:0.92rem;max-width:520px;line-height:1.65;}
+
+.up-grid{display:grid;grid-template-columns:1fr 360px;gap:24px;}
+@media(max-width:900px){.up-grid{grid-template-columns:1fr;}}
+
+/* FORM CARD */
+.form-card{padding:32px;border-radius:22px;border:1px solid var(--rim);background:var(--glass);backdrop-filter:var(--blur);}
+.form-card h2{font-size:0.75rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--teal);margin-bottom:24px;}
+
+/* DROP ZONE */
+.dz{border:2px dashed rgba(0,255,180,0.15);border-radius:16px;padding:2.5rem;text-align:center;cursor:pointer;transition:all .25s;position:relative;overflow:hidden;margin-bottom:20px;}
+.dz:hover,.dz.over{border-color:rgba(0,255,180,0.4);background:rgba(0,255,180,0.03);}
+.dz:hover::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 50%,rgba(0,255,180,0.04),transparent);pointer-events:none;}
+.dz-i{font-size:2.8rem;margin-bottom:10px;display:block;opacity:.6;}
+.dz p{font-size:0.9rem;color:var(--muted);line-height:1.6;}
+.dz span{color:var(--teal);font-weight:600;}
+.dz .dz-sub{font-size:0.76rem;color:var(--muted2);margin-top:6px;}
+
+/* PROGRESS */
+.prog-wrap{margin:18px 0 6px;display:none;}
+.prog-head{display:flex;justify-content:space-between;font-size:0.75rem;color:var(--muted2);margin-bottom:7px;font-family:var(--mono);}
+.prog-track{height:3px;background:rgba(0,255,180,0.06);border-radius:2px;overflow:hidden;}
+.prog-fill{height:100%;width:0;border-radius:2px;background:linear-gradient(90deg,var(--teal),var(--amber));transition:width .4s;}
+
+/* PREVIEW */
+.preview-card{display:none;margin-top:18px;background:rgba(0,255,180,0.04);border:1px solid rgba(0,255,180,0.12);border-radius:14px;padding:16px 18px;}
+.preview-card.show{display:block;}
+.pc-head{font-size:0.72rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--teal);margin-bottom:12px;}
+.pc-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(0,255,180,0.06);font-size:0.8rem;}
+.pc-row:last-child{border-bottom:none;}
+.pc-k{color:var(--muted2);}
+.pc-v{font-family:var(--mono);font-size:0.72rem;color:var(--teal);max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+
+/* PIPELINE PANEL */
+.pipe-panel{padding:28px;border-radius:22px;border:1px solid var(--rim);background:var(--glass);backdrop-filter:var(--blur);height:fit-content;position:sticky;top:90px;}
+.pipe-panel h2{font-size:0.75rem;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--amber);margin-bottom:24px;}
+
+.ps-list{display:flex;flex-direction:column;gap:0;}
+.ps-item{display:flex;gap:14px;align-items:flex-start;padding-bottom:22px;position:relative;}
+.ps-item:not(:last-child)::after{content:'';position:absolute;left:18px;top:38px;bottom:0;width:2px;background:linear-gradient(to bottom,rgba(0,255,180,0.15),transparent);}
+.ps-ico{width:38px;height:38px;border-radius:50%;flex-shrink:0;z-index:1;display:flex;align-items:center;justify-content:center;font-size:0.9rem;border:1px solid;transition:all .4s;}
+.ps-ico.idle{background:rgba(200,240,255,0.03);border-color:rgba(200,240,255,0.08);color:var(--muted2);}
+.ps-ico.running{background:rgba(0,255,180,0.12);border-color:rgba(0,255,180,0.3);color:var(--teal);box-shadow:0 0 16px rgba(0,255,180,0.25);animation:gpulse .8s ease-in-out infinite;}
+.ps-ico.done{background:rgba(0,255,180,0.08);border-color:rgba(0,255,180,0.25);color:var(--teal);}
+@keyframes gpulse{0%,100%{box-shadow:0 0 10px rgba(0,255,180,.2)}50%{box-shadow:0 0 22px rgba(0,255,180,.5)}}
+.ps-text h4{font-size:0.87rem;font-weight:700;color:var(--muted2);transition:color .3s;margin-bottom:2px;}
+.ps-text h4.lit{color:var(--ice);}
+.ps-sub{font-family:var(--mono);font-size:0.64rem;color:var(--muted2);}
+.ps-result{font-family:var(--mono);font-size:0.64rem;color:var(--teal);margin-top:4px;opacity:0;transition:opacity .4s;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.ps-result.show{opacity:1;}
+.ps-item:last-child{padding-bottom:0;}
+.ps-item:last-child::after{display:none;}
+</style>
+
+<div class="up-wrap">
+  <div class="up-head">
+    <div class="eyebrow">Evidence Submission</div>
+    <h1>Upload Forensic Evidence</h1>
+    <p>Submit digital evidence for blockchain-secured storage. EEO key generation and multi-key homomorphic encryption are applied automatically.</p>
+  </div>
+
+  <div class="up-grid">
+    <div class="form-card">
+      <h2>Evidence Submission Form</h2>
+      <form method="POST" id="upform" onsubmit="simulate(event)">
+        <div class="fl">
+          <label class="flb">Evidence Label / Filename</label>
+          <input name="filename" class="fi" placeholder="e.g. crime_scene_log_2025_001.bin" required>
+        </div>
+
+        <div class="dz" id="dz" onclick="document.getElementById('fi').click()">
+          <span class="dz-i">📂</span>
+          <p>Drop a file here or <span>click to browse</span></p>
+          <div class="dz-sub">Any file type · content read as forensic evidence data</div>
+          <input type="file" id="fi" style="display:none" onchange="loadFile(this)">
+        </div>
+
+        <div class="fl">
+          <label class="flb">Evidence Data</label>
+          <textarea name="data" id="dfield" class="fi" rows="6" placeholder="Paste forensic data here — log entries, hex dumps, metadata, case notes, network captures..." required></textarea>
+        </div>
+
+        <div class="prog-wrap" id="progw">
+          <div class="prog-head"><span id="progl">Processing...</span><span id="progp">0%</span></div>
+          <div class="prog-track"><div class="prog-fill" id="progf"></div></div>
+        </div>
+
+        <div class="preview-card" id="prevc">
+          <div class="pc-head">Pre-processing Preview</div>
+          <div class="pc-row"><span class="pc-k">Data size</span><span class="pc-v" id="psize">—</span></div>
+          <div class="pc-row"><span class="pc-k">SHA-256 (preview)</span><span class="pc-v" id="phash">—</span></div>
+          <div class="pc-row"><span class="pc-k">EEO Key (preview)</span><span class="pc-v" id="pkey">—</span></div>
+        </div>
+
+        <button type="submit" id="sbtn" class="btn btn-t" style="width:100%;justify-content:center;padding:15px;border-radius:14px;font-size:0.95rem;margin-top:16px;">
+          Encrypt &amp; Commit to Blockchain →
+        </button>
+      </form>
+    </div>
+
+    <!-- PIPELINE PANEL -->
+    <div class="pipe-panel">
+      <h2>Processing Pipeline</h2>
+      <div class="ps-list">
+        {% set steps = [
+          ('📥','Ingest','IaaS Platform'),
+          ('🔢','SHA-256 Hash','Integrity fingerprint'),
+          ('🧬','EEO Key Gen','Swarm optimization'),
+          ('🔐','MHE Encrypt','Homomorphic cipher'),
+          ('⛏','Mine Block','Proof-of-work'),
+          ('⛓','BC Commit','Immutable ledger'),
+        ] %}
+        {% for s in steps %}
+        <div class="ps-item">
+          <div class="ps-ico idle" id="psi{{ loop.index }}">{{ s[0] }}</div>
+          <div class="ps-text">
+            <h4 id="psh{{ loop.index }}">{{ s[1] }}</h4>
+            <div class="ps-sub">{{ s[2] }}</div>
+            <div class="ps-result" id="psr{{ loop.index }}"></div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// Drag/drop
+const dz=document.getElementById('dz');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('over');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('over'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('over');if(e.dataTransfer.files[0])loadFile({files:e.dataTransfer.files});});
+
+function loadFile(inp){
+  const f=inp.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=e=>{
+    document.getElementById('dfield').value=e.target.result.substring(0,2000);
+    document.querySelector('[name=filename]').value=f.name;
+    updatePreview();
+  };r.readAsText(f);
+}
+
+function simHash(s){
+  let h=5381;for(let i=0;i<s.length;i++)h=(h*33^s.charCodeAt(i))>>>0;
+  return h.toString(16).padStart(8,'0').repeat(8).substring(0,64);
+}
+
+function updatePreview(){
+  const d=document.getElementById('dfield').value;if(!d)return;
+  const h=simHash(d);
+  document.getElementById('psize').textContent=d.length+' bytes';
+  document.getElementById('phash').textContent=h;
+  document.getElementById('pkey').textContent=h.substring(0,8)+'...'+h.substring(56);
+  document.getElementById('prevc').classList.add('show');
+}
+document.getElementById('dfield').addEventListener('input',updatePreview);
+
+function setPs(n,state,res){
+  const ico=document.getElementById('psi'+n);
+  const hd=document.getElementById('psh'+n);
+  const rs=document.getElementById('psr'+n);
+  ico.className='ps-ico '+state;
+  if(state==='running'||state==='done')hd.classList.add('lit'); else hd.classList.remove('lit');
+  if(res){rs.textContent=res;rs.classList.add('show');}
+}
+
+function simulate(e){
+  e.preventDefault();
+  const data=document.getElementById('dfield').value;
+  if(!data.trim())return;
+  const btn=document.getElementById('sbtn');
+  btn.disabled=true;btn.textContent='Processing...';
+  document.getElementById('progw').style.display='block';
+  const pf=document.getElementById('progf');
+  const pl=document.getElementById('progl');
+  const pp=document.getElementById('progp');
+
+  const fakeHash=simHash(data);
+  const fakeKey=fakeHash.substring(0,12);
+  const fakeEnc=simHash(fakeHash+fakeKey).substring(0,20);
+  const fakeBlock='BLK-'+simHash(fakeKey).substring(0,8).toUpperCase();
+
+  const seq=[
+    [1,'running','Received data...'],
+    [2,'running','sha256 → '+fakeHash.substring(0,16)+'...'],
+    [3,'running','key → '+fakeKey+'...'],
+    [4,'running','ciphertext → '+fakeEnc+'...'],
+    [5,'running','nonce found → 0x'+Math.floor(Math.random()*9999).toString(16)],
+    [6,'running',fakeBlock+' committed'],
+  ];
+
+  let i=0;
+  const labs=['Ingesting evidence...','Computing SHA-256 hash...','EEO key optimization...','Homomorphic encryption...','Mining block hash...','Committing to blockchain...'];
+  const pcts=[15,32,52,68,84,100];
+
+  const iv=setInterval(()=>{
+    if(i>0)setPs(i,'done',null);
+    if(i<seq.length){
+      setPs(seq[i][0],'running',seq[i][2]);
+      pl.textContent=labs[i]; const p=pcts[i];
+      pf.style.width=p+'%';pp.textContent=p+'%';
+      i++;
+    }else{
+      clearInterval(iv);
+      setPs(6,'done',null);
+      setTimeout(()=>e.target.submit(),700);
+    }
+  },750);
+}
+</script>
+{% endblock %}
