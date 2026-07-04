@@ -1,0 +1,41 @@
+# 1. Install Required Packages
+
+pip install flask
+pip install pycryptodome
+pip install mysql-connector-python
+
+# OR
+
+pip install -r requirements.txt
+
+2. Create MySQL Database
+
+CREATE DATABASE digital_forensics;
+
+USE digital_forensics;
+
+# 3. Run the Flask Application
+
+python app.py
+
+# 4. Open Browser
+
+http://127.0.0.1:5000
+
+# 5. Register / Login
+
+- Create a new account
+- Login using valid credentials
+
+# 6. Upload Digital Evidence
+
+- Upload forensic files
+- Generate encryption key
+- Encrypt evidence
+- Store evidence securely in cloud/database
+
+# 7. Verify Evidence
+
+- Retrieve encrypted evidence
+- Verify integrity
+- Access evidence for forensic analysis
